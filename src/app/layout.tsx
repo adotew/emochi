@@ -4,8 +4,9 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Emochi Live",
-  description: "Eine minimale Realtime-App mit Supabase, einem Eingabefeld und einem Submit-Button.",
+  title: "૮₍ ˃ ⤙ ˂ ₎ა",
+  description:
+    "Eine minimale Realtime-App mit Supabase, einem Eingabefeld und einem Submit-Button.",
 };
 
 export default function RootLayout({

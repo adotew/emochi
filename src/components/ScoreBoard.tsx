@@ -10,22 +10,22 @@ export function ScoreBoard({ players }: ScoreBoardProps) {
       {players.map((player) => (
         <article
           key={player.name}
-          className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/8 p-5 transition-all duration-300"
+          className="rounded-3xl border border-[hsl(var(--border))] bg-surface p-5 shadow-sm"
         >
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-300">
-                Im Rennen
+              <p className="text-sm font-medium text-muted">
+                Spieler
               </p>
-              <h2 className="mt-2 text-2xl font-black text-white">
+              <h2 className="mt-2 text-2xl font-semibold">
                 {player.name}
               </h2>
             </div>
             <div className="text-right">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-300">
+              <p className="text-sm font-medium text-muted">
                 Punkte
               </p>
-              <p className="text-4xl font-black text-white">{player.score}</p>
+              <p className="text-4xl font-semibold">{player.score}</p>
             </div>
           </div>
         </article>
