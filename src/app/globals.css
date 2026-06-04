@@ -30,7 +30,10 @@ body {
     radial-gradient(circle at bottom right, rgba(45, 212, 191, 0.15), transparent 25%),
     linear-gradient(160deg, #09111f 0%, #131c32 45%, #0b1322 100%);
   color: hsl(var(--text));
-  font-family: var(--font-body), sans-serif;
+  font-family:
+    "Avenir Next",
+    "Segoe UI",
+    sans-serif;
 }
 
 h1,
@@ -39,7 +42,11 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-heading), var(--font-body), sans-serif;
+  font-family:
+    "Avenir Next Condensed",
+    "Arial Narrow",
+    "Avenir Next",
+    sans-serif;
 }
 
 button,
