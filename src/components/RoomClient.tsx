@@ -27,7 +27,9 @@ type RoomClientProps = {
   roomId: string;
 };
 
-const questionById = new Map(questions.map((question) => [question.id, question]));
+const questionById = new Map(
+  questions.map((question) => [question.id, question]),
+);
 
 export function RoomClient({ roomId }: RoomClientProps) {
   const { theme, setTheme } = useTheme();
@@ -145,19 +147,26 @@ export function RoomClient({ roomId }: RoomClientProps) {
   }, [room]);
 
   const currentQuestion = room?.current_question_id
-    ? questionById.get(room.current_question_id) ?? null
+    ? (questionById.get(room.current_question_id) ?? null)
     : null;
 
   const inviteLink =
-    typeof window === "undefined" ? "" : `${window.location.origin}/room/${roomId}`;
+    typeof window === "undefined"
+      ? ""
+      : `${window.location.origin}/room/${roomId}`;
 
   const derivedFeedback = useMemo<FeedbackState>(() => {
     if (!room) {
       return localFeedback;
     }
 
-    if (room.round_status === "resolved" && room.winner_slot && room.last_correct_answer) {
-      const winnerName = room.winner_slot === "host" ? room.host_name : room.guest_name;
+    if (
+      room.round_status === "resolved" &&
+      room.winner_slot &&
+      room.last_correct_answer
+    ) {
+      const winnerName =
+        room.winner_slot === "host" ? room.host_name : room.guest_name;
 
       return {
         type: "success",
@@ -262,15 +271,11 @@ export function RoomClient({ roomId }: RoomClientProps) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10">
         <section className="flex items-start justify-between gap-4 border-b border-[hsl(var(--border))] pb-6">
-          <div>
-            <p className="text-sm font-medium text-muted">Schlichtes Partyspiel</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Emochi
-            </h1>
-          </div>
           <ThemeToggle
             theme={theme}
-            onToggle={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+            onToggle={() =>
+              setTheme((current) => (current === "dark" ? "light" : "dark"))
+            }
           />
         </section>
         <section className="flex flex-1 items-center justify-center text-sm text-muted">
@@ -284,20 +289,19 @@ export function RoomClient({ roomId }: RoomClientProps) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10">
         <section className="flex items-start justify-between gap-4 border-b border-[hsl(var(--border))] pb-6">
-          <div>
-            <p className="text-sm font-medium text-muted">Schlichtes Partyspiel</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Emochi
-            </h1>
-          </div>
+          <div></div>
           <ThemeToggle
             theme={theme}
-            onToggle={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+            onToggle={() =>
+              setTheme((current) => (current === "dark" ? "light" : "dark"))
+            }
           />
         </section>
         <section className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xl rounded-3xl border border-[hsl(var(--border))] bg-surface p-6 shadow-sm sm:p-8">
-            <p className="text-sm text-muted">{errorMessage || "Raum nicht gefunden."}</p>
+            <p className="text-sm text-muted">
+              {errorMessage || "Raum nicht gefunden."}
+            </p>
             <Link
               href="/"
               className="mt-4 inline-flex text-sm font-medium text-text underline underline-offset-4"
@@ -316,15 +320,6 @@ export function RoomClient({ roomId }: RoomClientProps) {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10">
       <section className="flex items-start justify-between gap-4 border-b border-[hsl(var(--border))] pb-6">
-        <div>
-          <p className="text-sm font-medium text-muted">Schlichtes Partyspiel</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Emochi
-          </h1>
-          <p className="mt-3 max-w-xl text-sm text-muted sm:text-base">
-            Gemeinsam im selben Raum, gleichzeitig raten, automatisch punkten.
-          </p>
-        </div>
         <div className="flex items-center gap-2">
           <Link
             href="/"
@@ -334,7 +329,9 @@ export function RoomClient({ roomId }: RoomClientProps) {
           </Link>
           <ThemeToggle
             theme={theme}
-            onToggle={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+            onToggle={() =>
+              setTheme((current) => (current === "dark" ? "light" : "dark"))
+            }
           />
         </div>
       </section>
@@ -376,7 +373,9 @@ export function RoomClient({ roomId }: RoomClientProps) {
           </div>
         ) : roomIsFullForVisitor ? (
           <div className="w-full max-w-xl rounded-3xl border border-[hsl(var(--border))] bg-surface p-6 shadow-sm sm:p-8">
-            <p className="text-sm font-medium text-muted">Raum bereits besetzt</p>
+            <p className="text-sm font-medium text-muted">
+              Raum bereits besetzt
+            </p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight">
               Dieser Raum hat schon zwei Spieler
             </h2>
@@ -404,7 +403,9 @@ export function RoomClient({ roomId }: RoomClientProps) {
 
               {role === "host" ? (
                 <div className="rounded-2xl border border-[hsl(var(--border))] bg-surfaceStrong p-4">
-                  <p className="text-sm font-medium text-muted">Einladungslink</p>
+                  <p className="text-sm font-medium text-muted">
+                    Einladungslink
+                  </p>
                   <p className="mt-2 break-all text-sm">{inviteLink}</p>
                   <button
                     type="button"
@@ -450,7 +451,9 @@ export function RoomClient({ roomId }: RoomClientProps) {
           </>
         ) : (
           <div className="w-full max-w-xl rounded-3xl border border-[hsl(var(--border))] bg-surface p-6 shadow-sm sm:p-8">
-            <p className="text-sm text-muted">Aktuelle Frage konnte nicht geladen werden.</p>
+            <p className="text-sm text-muted">
+              Aktuelle Frage konnte nicht geladen werden.
+            </p>
           </div>
         )}
 

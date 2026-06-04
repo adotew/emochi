@@ -34,12 +34,10 @@ export function AnswerForm({
   };
 
   return (
-    <section className="rounded-3xl border border-[hsl(var(--border))] bg-surface p-5 shadow-sm sm:p-6">
+    <section className="rounded-3xl p-5 shadow-sm sm:p-6">
       <form className="space-y-4" onSubmit={handleSubmit}>
         <label className="block">
-          <span className="mb-2 block text-sm font-medium text-muted">
-            Deine Antwort
-          </span>
+       
           <input
             type="text"
             value={answer}
