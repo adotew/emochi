@@ -16,6 +16,25 @@ export default function Home() {
   const [value, setValue] = useState("");
   const [status, setStatus] = useState("Verbunden mit Supabase Realtime.");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const storedTheme = window.localStorage.getItem("emochi-theme");
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const nextTheme =
+      storedTheme === "light" || storedTheme === "dark"
+        ? storedTheme
+        : systemPrefersDark
+          ? "dark"
+          : "light";
+
+    setTheme(nextTheme);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem("emochi-theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     async function loadMessages() {
@@ -94,54 +113,65 @@ export default function Home() {
   };
 
   return (
-    <main className="relative mx-auto flex min-h-screen w-full max-w-3xl flex-col justify-center px-4 py-10 sm:px-6">
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute left-[10%] top-[12%] h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute bottom-[10%] right-[8%] h-56 w-56 rounded-full bg-accent/20 blur-3xl" />
-      </div>
+    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10">
+      <section className="flex items-start justify-between gap-4 border-b border-[hsl(var(--border))] pb-6">
+        <div>
+          <p className="text-sm font-medium text-muted">Supabase Realtime</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
+            Emochi Live
+          </h1>
+          <p className="mt-3 max-w-xl text-sm text-muted sm:text-base">
+            Nachrichten senden und in Echtzeit auf allen verbundenen Clients anzeigen.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+          className="rounded-full border border-[hsl(var(--border))] bg-surface px-4 py-2 text-sm font-medium text-text hover:bg-surfaceStrong"
+          aria-label="Farbschema wechseln"
+        >
+          {theme === "dark" ? "Light" : "Dark"}
+        </button>
+      </section>
 
-      <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/8 p-6 shadow-2xl shadow-black/20 backdrop-blur xl:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.34em] text-slate-300">
-          Supabase Realtime
-        </p>
-        <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-5xl">
-          Emochi Live
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm text-slate-300 sm:text-base">
-          Ein Eingabefeld, ein Submit-Button und alle Eintraege erscheinen sofort auf jedem verbundenen Client.
-        </p>
-
-        <form className="mt-8 flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
+      <section className="mt-8 rounded-3xl border border-[hsl(var(--border))] bg-surface p-5 shadow-sm sm:p-6">
+        <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
           <input
-            className="min-h-14 flex-1 rounded-2xl border border-white/15 bg-slate-950/60 px-5 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-accent"
+            className="min-h-12 flex-1 rounded-2xl border border-[hsl(var(--border))] bg-transparent px-4 text-base outline-none placeholder:text-muted focus:border-text"
             maxLength={280}
             placeholder="Nachricht eingeben"
             value={value}
             onChange={(event) => setValue(event.target.value)}
           />
           <button
-            className="min-h-14 rounded-2xl bg-accent px-6 font-bold text-slate-950 transition hover:bg-teal-300 disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-12 rounded-2xl bg-text px-5 font-medium text-background hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isSubmitting}
             type="submit"
           >
-            {isSubmitting ? "Sende..." : "Submit"}
+            {isSubmitting ? "Sende..." : "Senden"}
           </button>
         </form>
 
-        <p className="mt-3 text-sm text-slate-300">{status}</p>
+        <p className="mt-3 text-sm text-muted">{status}</p>
 
         <div className="mt-8 space-y-3">
-          {messages.map((message) => (
-            <article
-              key={message.id}
-              className="rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3"
-            >
-              <p className="text-base text-white">{message.content}</p>
-              <p className="mt-1 text-xs uppercase tracking-[0.24em] text-slate-400">
-                {new Date(message.created_at).toLocaleString("de-DE")}
-              </p>
-            </article>
-          ))}
+          {messages.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-[hsl(var(--border))] px-4 py-8 text-center text-sm text-muted">
+              Noch keine Nachrichten.
+            </div>
+          ) : (
+            messages.map((message) => (
+              <article
+                key={message.id}
+                className="rounded-2xl border border-[hsl(var(--border))] bg-surfaceStrong px-4 py-3"
+              >
+                <p className="text-base">{message.content}</p>
+                <p className="mt-2 text-xs text-muted">
+                  {new Date(message.created_at).toLocaleString("de-DE")}
+                </p>
+              </article>
+            ))
+          )}
         </div>
       </section>
     </main>
