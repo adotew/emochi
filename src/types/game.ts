@@ -2,6 +2,7 @@ export type Question = {
   id: number;
   emoji: string;
   answer: string;
+  hint: string;
 };
 
 export type Player = {

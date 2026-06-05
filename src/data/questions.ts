@@ -77,8 +77,18 @@ const questionSeed = [
   ["🐠🔍", "Findet Nemo"],
 ] as const;
 
+function buildHint(answer: string) {
+  const words = answer.split(/\s+/).filter(Boolean);
+  const initials = words.map((word) => word[0]?.toUpperCase()).join(", ");
+  const lengths = words.map((word) => word.length).join(", ");
+  const wordLabel = words.length === 1 ? "Wort" : "Woerter";
+
+  return `${words.length} ${wordLabel}, Initialen: ${initials}, Buchstaben pro Wort: ${lengths}.`;
+}
+
 export const questions: Question[] = questionSeed.map(([emoji, answer], index) => ({
   id: index + 1,
   emoji,
   answer,
+  hint: buildHint(answer),
 }));

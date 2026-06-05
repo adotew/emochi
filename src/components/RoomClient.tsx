@@ -45,6 +45,7 @@ export function RoomClient({ roomId }: RoomClientProps) {
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [localFeedback, setLocalFeedback] = useState<FeedbackState>(null);
+  const [showHint, setShowHint] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isJoining, setIsJoining] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
@@ -108,6 +109,35 @@ export function RoomClient({ roomId }: RoomClientProps) {
     setLocalFeedback(null);
   }, [room?.current_question_position, room?.round_status, room?.winner_slot]);
 
+  const currentQuestion = room?.current_question_id
+    ? (questionById.get(room.current_question_id) ?? null)
+    : null;
+
+  useEffect(() => {
+    setShowHint(false);
+
+    if (!room || room.status !== "active" || room.round_status !== "open") {
+      return;
+    }
+
+    if (!currentQuestion) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShowHint(true);
+    }, 30000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [
+    currentQuestion,
+    room?.current_question_position,
+    room?.round_status,
+    room?.status,
+  ]);
+
   useEffect(() => {
     if (!room || room.status !== "active" || room.round_status !== "resolved") {
       return;
@@ -152,15 +182,6 @@ export function RoomClient({ roomId }: RoomClientProps) {
     ];
   }, [room]);
 
-  const currentQuestion = room?.current_question_id
-    ? (questionById.get(room.current_question_id) ?? null)
-    : null;
-
-  const inviteLink =
-    typeof window === "undefined"
-      ? ""
-      : `${window.location.origin}/room/${roomId}`;
-
   const derivedFeedback = useMemo<FeedbackState>(() => {
     if (!room) {
       return localFeedback;
@@ -182,6 +203,11 @@ export function RoomClient({ roomId }: RoomClientProps) {
 
     return localFeedback;
   }, [localFeedback, room]);
+
+  const inviteLink =
+    typeof window === "undefined"
+      ? ""
+      : `${window.location.origin}/room/${roomId}`;
 
   const handleCopyLink = async () => {
     try {
@@ -478,7 +504,10 @@ export function RoomClient({ roomId }: RoomClientProps) {
           </div>
         ) : currentQuestion ? (
           <>
-            <EmojiCard emoji={currentQuestion.emoji} />
+            <EmojiCard
+              emoji={currentQuestion.emoji}
+              hint={showHint ? currentQuestion.hint : null}
+            />
             <AnswerForm
               feedback={derivedFeedback}
               resetKey={`${room.current_question_position}-${room.round_status}`}
