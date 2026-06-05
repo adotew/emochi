@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  CheckIcon,
+  Square2StackIcon,
+} from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
@@ -27,6 +31,8 @@ type RoomClientProps = {
   roomId: string;
 };
 
+type CopyState = "idle" | "success" | "error";
+
 const questionById = new Map(
   questions.map((question) => [question.id, question]),
 );
@@ -36,7 +42,7 @@ export function RoomClient({ roomId }: RoomClientProps) {
   const [room, setRoom] = useState<GameRoom | null>(null);
   const [role, setRole] = useState<PlayerSlot | null>(null);
   const [name, setName] = useState("");
-  const [copyState, setCopyState] = useState("");
+  const [copyState, setCopyState] = useState<CopyState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [localFeedback, setLocalFeedback] = useState<FeedbackState>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -180,11 +186,25 @@ export function RoomClient({ roomId }: RoomClientProps) {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(inviteLink);
-      setCopyState("Link kopiert.");
+      setCopyState("success");
     } catch {
-      setCopyState("Link konnte nicht kopiert werden.");
+      setCopyState("error");
     }
   };
+
+  useEffect(() => {
+    if (copyState === "idle") {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCopyState("idle");
+    }, 1800);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [copyState]);
 
   const handleJoinRoom = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -338,7 +358,7 @@ export function RoomClient({ roomId }: RoomClientProps) {
 
       <section className="mt-8 flex flex-1 flex-col items-center justify-center gap-6">
         {showJoinForm ? (
-          <div className="w-full max-w-xl rounded-3xl border border-[hsl(var(--border))] bg-surface p-6 shadow-sm sm:p-8">
+          <div className="w-full max-w-xl p-6 shadow-sm sm:p-8">
             <p className="text-sm font-medium text-muted">Einladung erhalten</p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight">
               {room.host_name} wartet auf dich
@@ -402,21 +422,34 @@ export function RoomClient({ roomId }: RoomClientProps) {
               </div>
 
               {role === "host" ? (
-                <div className="rounded-2xl border border-[hsl(var(--border))] bg-surfaceStrong p-4">
-                  <p className="text-sm font-medium text-muted">
-                    Einladungslink
+                <div className="flex items-start gap-3">
+                  <p className="mt-2 min-w-0 flex-1 break-all text-sm">
+                    {inviteLink}
                   </p>
-                  <p className="mt-2 break-all text-sm">{inviteLink}</p>
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="mt-4 rounded-2xl border border-[hsl(var(--border))] bg-surface px-4 py-3 text-sm font-medium hover:bg-surface"
+                    aria-label={
+                      copyState === "success"
+                        ? "Link kopiert"
+                        : copyState === "error"
+                          ? "Kopieren fehlgeschlagen"
+                          : "Link kopieren"
+                    }
+                    className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border bg-surface transition-all duration-200 ${
+                      copyState === "success"
+                        ? "border-[hsl(var(--border))] text-text"
+                        : copyState === "error"
+                          ? "border-[hsl(var(--danger))] text-[hsl(var(--danger))] shadow-[0_0_0_4px_rgba(220,38,38,0.08)]"
+                          : "border-[hsl(var(--border))] text-text hover:bg-surfaceStrong"
+                    }`}
                   >
-                    Freund/in einladen
+                    {copyState === "success" ? (
+                      <CheckIcon className="h-5 w-5" />
+                    ) : (
+                      <Square2StackIcon className="h-5 w-5" />
+                    )}
                   </button>
-                  {copyState ? (
-                    <p className="mt-3 text-sm text-muted">{copyState}</p>
-                  ) : null}
                 </div>
               ) : null}
 

@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { createGameRoom, getStoredPlayerName, setStoredPlayerName, setStoredRoomRole } from "@/lib/game-rooms";
+import {
+  createGameRoom,
+  getStoredPlayerName,
+  setStoredPlayerName,
+  setStoredRoomRole,
+} from "@/lib/game-rooms";
 import { useTheme } from "@/lib/theme";
 
 export function HomeLobby() {
@@ -47,17 +52,15 @@ export function HomeLobby() {
     <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10">
       <section className="flex items-start justify-between gap-4 border-b border-[hsl(var(--border))] pb-6">
         <div>
-          <p className="text-sm font-medium text-muted">Schlichtes Partyspiel</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
             Emochi
           </h1>
-          <p className="mt-3 max-w-xl text-sm text-muted sm:text-base">
-            Eigenen Namen eingeben, Link erstellen, Freund oder Freundin einladen.
-          </p>
         </div>
         <ThemeToggle
           theme={theme}
-          onToggle={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+          onToggle={() =>
+            setTheme((current) => (current === "dark" ? "light" : "dark"))
+          }
         />
       </section>
 
@@ -93,19 +96,6 @@ export function HomeLobby() {
               {errorMessage}
             </p>
           ) : null}
-
-          <p className="mt-6 text-sm text-muted">
-            Der Einladungslink wird direkt erstellt und im nächsten Schritt kopierbar angezeigt.
-          </p>
-          <p className="mt-4 text-sm text-muted">
-            Schon einen Link? Dann direkt in den Raum wechseln.
-          </p>
-          <Link
-            href="/"
-            className="mt-3 inline-flex text-sm font-medium text-text underline underline-offset-4"
-          >
-            Startseite aktualisieren
-          </Link>
         </div>
       </section>
     </main>
