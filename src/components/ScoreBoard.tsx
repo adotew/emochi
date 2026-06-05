@@ -2,9 +2,29 @@ import type { Player } from "@/types/game";
 
 type ScoreBoardProps = {
   players: Player[];
+  variant?: "default" | "compact";
 };
 
-export function ScoreBoard({ players }: ScoreBoardProps) {
+export function ScoreBoard({
+  players,
+  variant = "default",
+}: ScoreBoardProps) {
+  if (variant === "compact") {
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        {players.map((player) => (
+          <article
+            key={player.name}
+            className="min-w-[140px] rounded-2xl border border-[hsl(var(--border))] bg-surface px-4 py-3 shadow-sm"
+          >
+            <p className="truncate text-sm font-medium">{player.name}</p>
+            <p className="mt-1 text-sm text-muted">{player.score} Punkte</p>
+          </article>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid w-full gap-3 sm:grid-cols-2">
       {players.map((player) => (

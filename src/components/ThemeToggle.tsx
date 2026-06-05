@@ -1,3 +1,5 @@
+import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
+
 type ThemeToggleProps = {
   theme: "light" | "dark";
   onToggle: () => void;
@@ -8,10 +10,14 @@ export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
     <button
       type="button"
       onClick={onToggle}
-      className="rounded-full border border-[hsl(var(--border))] bg-surface px-4 py-2 text-sm font-medium text-text hover:bg-surfaceStrong"
+      className="inline-flex h-10 w-10 items-center justify-center  text-text "
       aria-label="Farbschema wechseln"
     >
-      {theme === "dark" ? "Light" : "Dark"}
+      {theme === "dark" ? (
+        <SunIcon className="h-5 w-5" />
+      ) : (
+        <MoonIcon className="h-5 w-5" />
+      )}
     </button>
   );
 }

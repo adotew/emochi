@@ -289,8 +289,8 @@ export function RoomClient({ roomId }: RoomClientProps) {
 
   if (isLoading) {
     return (
-      <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10">
-        <section className="flex items-start justify-between gap-4 border-b border-[hsl(var(--border))] pb-6">
+      <main className="relative mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10">
+        <section className="absolute right-4 top-4 sm:right-6 sm:top-6">
           <ThemeToggle
             theme={theme}
             onToggle={() =>
@@ -307,9 +307,8 @@ export function RoomClient({ roomId }: RoomClientProps) {
 
   if (!room) {
     return (
-      <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10">
-        <section className="flex items-start justify-between gap-4 border-b border-[hsl(var(--border))] pb-6">
-          <div></div>
+      <main className="relative mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10">
+        <section className="absolute right-4 top-4 sm:right-6 sm:top-6">
           <ThemeToggle
             theme={theme}
             onToggle={() =>
@@ -336,27 +335,36 @@ export function RoomClient({ roomId }: RoomClientProps) {
 
   const showJoinForm = !role && !room.guest_name;
   const roomIsFullForVisitor = !role && Boolean(room.guest_name);
+  const showTopScoreBoard = !showJoinForm && !roomIsFullForVisitor;
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10">
-      <section className="flex items-start justify-between gap-4 border-b border-[hsl(var(--border))] pb-6">
-        <div className="flex items-center gap-2">
-          <Link
-            href="/"
-            className="rounded-full border border-[hsl(var(--border))] bg-surface px-4 py-2 text-sm font-medium hover:bg-surfaceStrong"
-          >
-            Neuer Raum
-          </Link>
+    <main className="relative mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10">
+      {showTopScoreBoard ? (
+        <section className="flex w-full items-start justify-between gap-4">
+          <ScoreBoard players={players} variant="compact" />
           <ThemeToggle
             theme={theme}
             onToggle={() =>
               setTheme((current) => (current === "dark" ? "light" : "dark"))
             }
           />
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section className="absolute right-4 top-4 sm:right-6 sm:top-6">
+          <ThemeToggle
+            theme={theme}
+            onToggle={() =>
+              setTheme((current) => (current === "dark" ? "light" : "dark"))
+            }
+          />
+        </section>
+      )}
 
-      <section className="mt-8 flex flex-1 flex-col items-center justify-center gap-6">
+      <section
+        className={`flex flex-1 flex-col items-center justify-center gap-6 ${
+          showTopScoreBoard ? "mt-6" : "mt-8"
+        }`}
+      >
         {showJoinForm ? (
           <div className="w-full max-w-xl p-6 shadow-sm sm:p-8">
             <p className="text-sm font-medium text-muted">Einladung erhalten</p>
@@ -452,9 +460,6 @@ export function RoomClient({ roomId }: RoomClientProps) {
                   </button>
                 </div>
               ) : null}
-
-              <ScoreBoard players={players} />
-
               {role === "host" ? (
                 <button
                   type="button"
@@ -473,7 +478,6 @@ export function RoomClient({ roomId }: RoomClientProps) {
           </div>
         ) : currentQuestion ? (
           <>
-            <ScoreBoard players={players} />
             <EmojiCard emoji={currentQuestion.emoji} />
             <AnswerForm
               feedback={derivedFeedback}
