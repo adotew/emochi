@@ -20,11 +20,12 @@
   let myId = $state('')
   let error = $state('')
   let hostGame = $state<HostGame | null>(null)
+  let hostState = $state<State | null>(null)
   let remoteState = $state<State | null>(null)
   let conns = new Map<string, DataConnection>()
   let revealTimer: ReturnType<typeof setTimeout> | null = null
 
-  const game = $derived(isHost ? hostGame?.state ?? null : remoteState)
+  const game = $derived(isHost ? hostState : remoteState)
 
   const inGame = $derived(!!game)
 
@@ -112,6 +113,7 @@
     isHost = true
     myId = 'host'
     hostGame = new HostGame(name.trim().slice(0, 16), TOTAL_ROUNDS)
+    hostGame.onState((s) => (hostState = s))
     peer = setupHostPeer(randomCode())
   }
 
@@ -183,6 +185,7 @@
     roomCode = ''
     myId = ''
     hostGame = null
+    hostState = null
     remoteState = null
     error = ''
   }
