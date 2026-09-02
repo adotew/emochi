@@ -61,7 +61,7 @@ export class HostGame {
     this.word = w.word;
     this.patch({
       phase: "playing",
-      round: { num, total: this.state.round.total, emojis: [w.emoji] },
+      round: { num, total: this.state.round.total, emojis: w.emojis },
       winnerId: null,
       answer: null,
       guesses: [],
