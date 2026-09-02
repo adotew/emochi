@@ -21,96 +21,70 @@
   }
 </script>
 
-<div class="card">
-  <h2>lobby</h2>
-
-  {#if isHost}
-    <p class="code-label">share this room code</p>
-    <div class="code-row">
-      <span class="code">{code}</span>
-      <button class="ghost" onclick={copyCode}>{copied ? 'copied ✓' : 'copy'}</button>
-    </div>
-  {:else}
-    <p class="code-label">you joined room</p>
-    <div class="code-row">
-      <span class="code">{code}</span>
-    </div>
-  {/if}
+<section class="lobby">
+  <div class="code-row">
+    <span class="code">{code}</span>
+    {#if isHost}
+      <button class="ghost" onclick={copyCode}>{copied ? 'copied' : 'copy'}</button>
+    {/if}
+  </div>
 
   <ul class="players">
     {#each game.players as p (p.id)}
       <li>
         <span>{p.name}</span>
-        {#if p.id === 'host'}<span class="badge">host</span>{/if}
+        {#if p.id === 'host'}<small>host</small>{/if}
       </li>
     {/each}
   </ul>
 
   {#if isHost}
     <button class="primary" onclick={onStart} disabled={game.players.length < 2}>
-      {game.players.length < 2 ? 'waiting for players…' : `start (${game.players.length} players)`}
+      {game.players.length < 2 ? 'waiting…' : 'start'}
     </button>
   {:else}
-    <p class="waiting">waiting for the host to start…</p>
+    <p>waiting for host…</p>
   {/if}
-</div>
+</section>
 
 <style>
-  .card {
-    background: #1a1d24;
-    border: 1px solid #2b2f3a;
-    border-radius: 16px;
-    padding: 28px;
+  .lobby {
     width: 100%;
-    max-width: 380px;
-  }
-  h2 {
-    margin: 0 0 16px;
-  }
-  .code-label {
-    margin: 0 0 8px;
-    color: #9aa3b2;
-    font-size: 14px;
+    text-align: center;
   }
   .code-row {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 32px;
   }
   .code {
-    font-family: ui-monospace, monospace;
-    font-size: 28px;
+    font-family: monospace;
+    font-size: 30px;
     letter-spacing: 6px;
-    color: #ffd166;
     user-select: all;
   }
   .players {
     list-style: none;
     padding: 0;
-    margin: 0 0 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    margin: 0 0 24px;
+    border-top: 1px solid #333;
   }
   .players li {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    background: #12151b;
-    border-radius: 8px;
-    padding: 8px 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #333;
   }
-  .badge {
-    font-size: 12px;
-    color: #9aa3b2;
-    border: 1px solid #2b2f3a;
-    border-radius: 999px;
-    padding: 2px 8px;
+  small,
+  p {
+    color: #888;
   }
-  .waiting {
+  p {
     margin: 0;
-    color: #9aa3b2;
+  }
+  .primary {
+    width: 100%;
   }
 </style>

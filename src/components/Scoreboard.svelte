@@ -9,8 +9,8 @@
 </script>
 
 {#if game.phase === 'over'}
-  <div class="final card">
-    <h2>final scores</h2>
+  <div class="final">
+    <h2>scores</h2>
     <ol class="ranked">
       {#each ranked as p, i (p.id)}
         <li class:first={i === 0}>
@@ -35,18 +35,14 @@
   .bar {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 16px;
     justify-content: center;
+    color: #aaa;
+    font-size: 14px;
   }
   .chip {
     display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #1a1d24;
-    border: 1px solid #2b2f3a;
-    border-radius: 999px;
-    padding: 6px 14px;
-    font-size: 14px;
+    gap: 6px;
   }
   .name {
     max-width: 120px;
@@ -55,39 +51,30 @@
     white-space: nowrap;
   }
   .score {
-    color: #ffd166;
-    font-weight: 700;
+    color: #fff;
+    font-weight: 600;
   }
   .final {
     width: 100%;
-    max-width: 380px;
   }
   .final h2 {
     margin: 0 0 16px;
+    font-size: 18px;
   }
   .ranked {
     list-style: none;
     padding: 0;
     margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    counter-reset: place;
+    border-top: 1px solid #333;
   }
   .ranked li {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    background: #12151b;
-    border-radius: 8px;
-    padding: 10px 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid #333;
   }
   .ranked li.first {
-    background: #1d3524;
     color: #7ee2a8;
-    font-weight: 700;
-  }
-  .ranked .score {
-    color: #ffd166;
+    font-weight: 600;
   }
 </style>

@@ -1,21 +1,14 @@
 <script lang="ts">
   import type { State } from '../lib/protocol'
 
-  let { game, myId, onGuess }: {
+  let { game, onGuess }: {
     game: State
-    myId: string
     onGuess: (text: string) => void
   } = $props()
 
   let text = $state('')
 
-  const me = $derived(game.players.find((p) => p.id === myId))
-  const iGotIt = $derived(
-    game.phase === 'roundEnd' &&
-      !!me &&
-      game.guesses.some((g) => g.correct && g.name === me.name),
-  )
-  const disabled = $derived(game.phase !== 'playing' || iGotIt)
+  const disabled = $derived(game.phase !== 'playing')
 
   function submit() {
     const guess = text.trim()
@@ -33,17 +26,13 @@
 >
   <input
     type="text"
-    placeholder={iGotIt ? 'nice! 🎉' : game.phase === 'playing' ? 'your guess…' : '…'}
+    placeholder={game.phase === 'playing' ? 'your guess…' : '…'}
     bind:value={text}
     disabled={disabled}
     autocomplete="off"
   />
   <button class="primary" type="submit" disabled={disabled}>guess</button>
 </form>
-
-{#if iGotIt}
-  <p class="got">you got it! +10</p>
-{/if}
 
 <style>
   form {
@@ -54,23 +43,20 @@
   }
   input {
     flex: 1;
+    min-width: 0;
     font: inherit;
-    padding: 10px 14px;
-    border-radius: 10px;
-    border: 1px solid #2b2f3a;
-    background: #12151b;
-    color: #e8eaed;
+    padding: 12px 0;
+    border: 0;
+    border-bottom: 1px solid #444;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
   }
   input:focus {
-    outline: 2px solid #ffd166;
-    outline-offset: 1px;
+    outline: 0;
+    border-color: #fff;
   }
   input:disabled {
     opacity: 0.5;
-  }
-  .got {
-    margin: 0;
-    color: #7ee2a8;
-    font-size: 14px;
   }
 </style>

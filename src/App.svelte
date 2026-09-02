@@ -17,7 +17,6 @@
   let conn: DataConnection | null = null
   let isHost = $state(false)
   let roomCode = $state('')
-  let myId = $state('')
   let error = $state('')
   let hostGame = $state<HostGame | null>(null)
   let hostState = $state<State | null>(null)
@@ -111,7 +110,6 @@
   function createRoom(name: string) {
     codeRetries = 0
     isHost = true
-    myId = 'host'
     hostGame = new HostGame(name.trim().slice(0, 16), TOTAL_ROUNDS)
     hostGame.onState((s) => (hostState = s))
     peer = setupHostPeer(randomCode())
@@ -135,7 +133,6 @@
         const msg = data as ServerMsg
         if (msg.type === 'state') {
           remoteState = msg.state
-          myId = c.peer
           setError('')
         } else if (msg.type === 'error') {
           setError(msg.message)
@@ -158,15 +155,8 @@
   }
 
   function sendGuess(text: string) {
-    conn?.send({ type: 'guess', text } satisfies ClientMsg)
-  }
-
-  function leave() {
-    if (isHost) {
-      for (const c of conns.values()) c.close()
-      conns.clear()
-    }
-    cleanup()
+    if (isHost) handleHostGuess('host', text)
+    else conn?.send({ type: 'guess', text } satisfies ClientMsg)
   }
 
   function cleanup() {
@@ -183,7 +173,6 @@
     conns.clear()
     isHost = false
     roomCode = ''
-    myId = ''
     hostGame = null
     hostState = null
     remoteState = null
@@ -204,15 +193,13 @@
 <main>
   {#if !inGame}
     <section class="home">
-      <h1>🍩 emojiguess</h1>
-      <p class="tagline">one player creates a room and shares the code.<br />everyone else guesses the emoji.</p>
+      <h1>emojiguess</h1>
 
       {#if error}
         <p class="error">{error}</p>
       {/if}
 
       <form
-        class="card"
         onsubmit={(e) => {
           e.preventDefault()
           const name = new FormData(e.currentTarget).get('name')?.toString() ?? ''
@@ -220,13 +207,11 @@
           createRoom(name)
         }}
       >
-        <h2>create a room</h2>
-        <input name="name" type="text" placeholder="your name" maxlength="16" autocomplete="off" />
-        <button class="primary" type="submit">create</button>
+        <input name="name" type="text" placeholder="your name" aria-label="your name" maxlength="16" autocomplete="off" />
+        <button class="primary" type="submit">create room</button>
       </form>
 
       <form
-        class="card"
         onsubmit={(e) => {
           e.preventDefault()
           const data = new FormData(e.currentTarget)
@@ -236,10 +221,9 @@
           joinRoom(code, name)
         }}
       >
-        <h2>join a room</h2>
-        <input name="name" type="text" placeholder="your name" maxlength="16" autocomplete="off" />
-        <input name="code" type="text" placeholder="room code" maxlength="8" autocomplete="off" />
-        <button class="primary" type="submit">join</button>
+        <input name="name" type="text" placeholder="your name" aria-label="your name" maxlength="16" autocomplete="off" />
+        <input name="code" type="text" placeholder="room code" aria-label="room code" maxlength="8" autocomplete="off" />
+        <button class="primary" type="submit">join room</button>
       </form>
     </section>
   {:else if game}
@@ -251,18 +235,10 @@
         }} />
       {:else}
         <Scoreboard {game} />
-        <Board
-          {game}
-          {isHost}
-          onReveal={() => {
-            hostGame?.reveal()
-            broadcast()
-            scheduleNext()
-          }}
-        />
-        {#if !isHost}
-          <GuessInput {game} {myId} onGuess={sendGuess} />
-        {:else if game.phase === 'over'}
+        <Board {game} />
+        {#if game.phase !== 'over'}
+          <GuessInput {game} onGuess={sendGuess} />
+        {:else if isHost}
           <button
             class="primary"
             onclick={() => {
@@ -273,7 +249,6 @@
             play again
           </button>
         {/if}
-        <button class="ghost leave" onclick={leave}>leave</button>
       {/if}
     </section>
   {/if}
@@ -282,69 +257,45 @@
 <style>
   main {
     min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
     padding: 24px;
   }
-  .home {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-    max-width: 380px;
-  }
-  h1 {
-    margin: 0;
-    font-size: 44px;
-    letter-spacing: -1px;
-  }
-  .tagline {
-    margin: 0 0 8px;
-    text-align: center;
-    color: #9aa3b2;
-    line-height: 1.5;
-  }
-  .error {
-    margin: 0;
-    color: #ff8a8a;
-    font-size: 14px;
-  }
-  .card {
-    background: #1a1d24;
-    border: 1px solid #2b2f3a;
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-  }
-  .card h2 {
-    margin: 0;
-    font-size: 18px;
-  }
-  input {
-    font: inherit;
-    padding: 10px 14px;
-    border-radius: 10px;
-    border: 1px solid #2b2f3a;
-    background: #12151b;
-    color: #e8eaed;
-  }
-  input:focus {
-    outline: 2px solid #ffd166;
-    outline-offset: 1px;
-  }
+  .home,
   .game {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 24px;
+    width: 100%;
+    max-width: 380px;
   }
-  .leave {
-    margin-top: 8px;
+  h1 {
+    margin: 0 0 16px;
+    font-size: 32px;
+    letter-spacing: -1px;
+  }
+  .error {
+    margin: 0;
+    color: #ff7070;
+    font-size: 14px;
+  }
+  form {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+  }
+  input {
+    font: inherit;
+    padding: 12px 0;
+    border: 0;
+    border-bottom: 1px solid #444;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+  }
+  input:focus {
+    outline: 0;
+    border-color: #fff;
   }
 </style>

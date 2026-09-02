@@ -1,11 +1,7 @@
 <script lang="ts">
   import type { State } from '../lib/protocol'
 
-  let { game, isHost, onReveal }: {
-    game: State
-    isHost: boolean
-    onReveal?: () => void
-  } = $props()
+  let { game }: { game: State } = $props()
 
   const winner = $derived(game.players.find((p) => p.id === game.winnerId))
 </script>
@@ -24,8 +20,6 @@
         <p class="winner">no one got it 😅</p>
       {/if}
     </div>
-  {:else if game.phase === 'playing' && isHost}
-    <button class="ghost" onclick={onReveal}>reveal answer</button>
   {/if}
 
   {#if game.guesses.length > 0}
@@ -45,66 +39,54 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
-    background: #1a1d24;
-    border: 1px solid #2b2f3a;
-    border-radius: 16px;
-    padding: 32px;
-    min-width: 320px;
+    gap: 20px;
+    width: 100%;
+  }
+  .round,
+  .winner,
+  .who {
+    color: #888;
+  }
+  .round,
+  .answer,
+  .winner {
+    margin: 0;
   }
   .round {
-    margin: 0;
-    color: #9aa3b2;
-    font-size: 14px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    font-size: 13px;
   }
   .emoji {
-    font-size: 110px;
+    font-size: 96px;
     line-height: 1;
   }
   .reveal {
     text-align: center;
   }
   .answer {
-    margin: 0 0 6px;
+    margin-bottom: 4px;
     font-size: 20px;
-  }
-  .answer strong {
-    color: #ffd166;
-  }
-  .winner {
-    margin: 0;
-    color: #9aa3b2;
   }
   .guesses {
     list-style: none;
     padding: 0;
     margin: 8px 0 0;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
     max-height: 180px;
     overflow-y: auto;
+    border-top: 1px solid #333;
   }
   .guesses li {
     display: flex;
     gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
     font-size: 14px;
-    background: #12151b;
-    border-radius: 8px;
-    padding: 6px 10px;
   }
-  .guesses li.correct {
-    background: #1d3524;
+  .guesses li.correct,
+  .guesses li.correct .who {
     color: #7ee2a8;
   }
   .who {
-    color: #9aa3b2;
     flex-shrink: 0;
-  }
-  .guesses li.correct .who {
-    color: #7ee2a8;
   }
 </style>
