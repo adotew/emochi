@@ -256,6 +256,7 @@
 
 <style>
   main {
+    box-sizing: border-box;
     min-height: 100svh;
     display: grid;
     place-items: center;

@@ -56,6 +56,7 @@
     font-size: 13px;
   }
   .emoji {
+    margin: 24px 0;
     font-size: 96px;
     line-height: 1;
   }
