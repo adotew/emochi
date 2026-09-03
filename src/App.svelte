@@ -22,7 +22,7 @@
   let hostState = $state<State | null>(null)
   let remoteState = $state<State | null>(null)
   let conns = new Map<string, DataConnection>()
-  let revealTimer: ReturnType<typeof setTimeout> | null = null
+  let gameTimer: ReturnType<typeof setTimeout> | null = null
 
   const game = $derived(isHost ? hostState : remoteState)
 
@@ -39,19 +39,36 @@
     }
   }
 
-  function scheduleNext() {
-    if (revealTimer) clearTimeout(revealTimer)
-    revealTimer = setTimeout(() => {
+  function clearGameTimer() {
+    if (gameTimer) clearTimeout(gameTimer)
+    gameTimer = null
+  }
+
+  function scheduleRoundTimeout() {
+    clearGameTimer()
+    const round = hostGame?.state.round
+    if (!round || !('endsAt' in round) || typeof round.endsAt !== 'number') return
+    gameTimer = setTimeout(() => {
       hostGame?.next()
       broadcast()
+      scheduleNext()
+    }, Math.max(0, round.endsAt - Date.now()))
+  }
+
+  function scheduleNext() {
+    clearGameTimer()
+    gameTimer = setTimeout(() => {
+      hostGame?.next()
+      broadcast()
+      if (hostGame?.state.phase === 'playing') scheduleRoundTimeout()
     }, REVEAL_MS)
   }
 
   function handleHostGuess(id: string, text: string) {
     if (!hostGame) return
-    hostGame.guess(id, text)
+    const result = hostGame.guess(id, text)
     broadcast()
-    if (hostGame.state.phase === 'roundEnd') scheduleNext()
+    if (result === 'correct') scheduleNext()
   }
 
   function handleHostJoin(c: DataConnection, name: string) {
@@ -160,8 +177,7 @@
   }
 
   function cleanup() {
-    if (revealTimer) clearTimeout(revealTimer)
-    revealTimer = null
+    clearGameTimer()
     conn?.close()
     conn = null
     try {
@@ -180,7 +196,7 @@
   }
 
   onDestroy(() => {
-    if (revealTimer) clearTimeout(revealTimer)
+    clearGameTimer()
     try {
       peer?.destroy()
     } catch {
@@ -193,7 +209,7 @@
 <main>
   {#if !inGame}
     <section class="home">
-      <h1>emojiguess</h1>
+      <h1>emochi</h1>
 
       {#if error}
         <p class="error">{error}</p>
@@ -232,6 +248,7 @@
         <Lobby {game} {isHost} code={roomCode} onStart={() => {
           hostGame?.start()
           broadcast()
+          scheduleRoundTimeout()
         }} />
       {:else}
         <Scoreboard {game} />

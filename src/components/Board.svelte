@@ -1,13 +1,30 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
   import type { State } from '../lib/protocol'
 
   let { game }: { game: State } = $props()
+  let now = $state(Date.now())
 
   const winner = $derived(game.players.find((p) => p.id === game.winnerId))
+  const endsAt = $derived(
+    'endsAt' in game.round && typeof game.round.endsAt === 'number' ? game.round.endsAt : null,
+  )
+  const secondsLeft = $derived(
+    game.phase !== 'playing' || endsAt === null
+      ? null
+      : Math.max(0, Math.ceil((endsAt - now) / 1000)),
+  )
+
+  onMount(() => {
+    const timer = setInterval(() => (now = Date.now()), 250)
+    return () => clearInterval(timer)
+  })
 </script>
 
 <div class="board">
-  <p class="round">round {game.round.num} / {game.round.total}</p>
+  <p class="round">
+    round {game.round.num} / {game.round.total}{#if secondsLeft !== null} · <time>{secondsLeft}s</time>{/if}
+  </p>
 
   <div class="emoji" aria-label="emoji clue">{game.round.emojis.join(' ')}</div>
 
@@ -54,6 +71,9 @@
   }
   .round {
     font-size: 13px;
+  }
+  time {
+    color: #fff;
   }
   .emoji {
     margin: 24px 0;

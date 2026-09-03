@@ -4,6 +4,7 @@ import type { Guess, State } from "./protocol";
 const POINTS = 10;
 const MAX_LOG = 8;
 export const MAX_PLAYERS = 8;
+const ROUND_MS = 30_000;
 
 export class HostGame {
   state: State;
@@ -15,7 +16,7 @@ export class HostGame {
     this.state = {
       phase: "lobby",
       players: [{ id: "host", name: hostName, score: 0 }],
-      round: { num: 0, total: totalRounds, emojis: [] },
+      round: { num: 0, total: totalRounds, emojis: [], endsAt: null },
       winnerId: null,
       answer: null,
       guesses: [],
@@ -61,7 +62,12 @@ export class HostGame {
     this.word = w.word;
     this.patch({
       phase: "playing",
-      round: { num, total: this.state.round.total, emojis: w.emojis },
+      round: {
+        num,
+        total: this.state.round.total,
+        emojis: w.emojis,
+        endsAt: Date.now() + ROUND_MS,
+      },
       winnerId: null,
       answer: null,
       guesses: [],
@@ -100,6 +106,10 @@ export class HostGame {
   }
 
   next() {
+    if (this.state.phase === "playing") {
+      this.patch({ phase: "roundEnd", winnerId: null, answer: this.word });
+      return;
+    }
     if (this.state.phase !== "roundEnd") return;
     if (this.state.round.num >= this.state.round.total) {
       this.patch({ phase: "over" });
@@ -112,7 +122,12 @@ export class HostGame {
     this.patch({
       phase: "lobby",
       players: this.state.players.map((p) => ({ ...p, score: 0 })),
-      round: { num: 0, total: this.state.round.total, emojis: [] },
+      round: {
+        num: 0,
+        total: this.state.round.total,
+        emojis: [],
+        endsAt: null,
+      },
       winnerId: null,
       answer: null,
       guesses: [],
